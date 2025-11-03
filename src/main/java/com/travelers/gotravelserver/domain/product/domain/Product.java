@@ -44,13 +44,10 @@ public class Product extends BaseTimeEntity {
 	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
 
-	@Column(precision = 2, scale = 1)
-	private BigDecimal rating;
-
 	@Column(nullable = false)
-	private int maxParticipants; // 예약 가능한 최대 인원
+	private int days;
 
-	@Column(length = 500)
+	@Column(name = "image_url", length = 500)
 	private String imageUrl;
 
 	@Builder.Default
