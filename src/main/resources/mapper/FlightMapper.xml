@@ -15,7 +15,6 @@
             #{f.deptTime} AS dept_time,
             #{f.arrivalTime} AS arrival_time,
             #{f.price} AS price
-            FROM DUAL
         </foreach>
         ) f
         JOIN locations l ON l.city = f.destination

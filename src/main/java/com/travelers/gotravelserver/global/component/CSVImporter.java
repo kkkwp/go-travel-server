@@ -35,7 +35,9 @@ public class CSVImporter implements CommandLineRunner {
 			return;
 		}
 
-		List<FlightCsvDto> flights = new ArrayList<>();
+		final int BATCH_SIZE = 1000;
+		List<FlightCsvDto> batch = new ArrayList<>(BATCH_SIZE);
+
 		try (var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(
 			getClass().getClassLoader().getResourceAsStream("db/import/flights_data_updated.csv")),
 			StandardCharsets.UTF_8))) {
@@ -44,7 +46,7 @@ public class CSVImporter implements CommandLineRunner {
 			reader.lines().skip(1).forEach(line -> {
 				try {
 					String[] p = line.split(",", -1);
-					flights.add(FlightCsvDto.builder()
+					batch.add(FlightCsvDto.builder()
 						.flightNumber(p[0].trim())
 						.airline(p[1].trim())
 						.deptTime(Timestamp.valueOf(p[2].trim()))
@@ -52,12 +54,22 @@ public class CSVImporter implements CommandLineRunner {
 						.price(new BigDecimal(p[4].trim()))
 						.destination(p[5].trim())
 						.build());
+
+					// 일정 크기 도달 시 flush
+					if (batch.size() >= BATCH_SIZE) {
+						flightMapper.insertFlights(batch);
+						log.info("✅ {}건 삽입 완료 (누적)", BATCH_SIZE);
+						batch.clear();
+					}
 				} catch (Exception e) {
 					log.error("CSV 파싱 오류: {} → {}", line, e.getMessage());
 				}
 			});
+
+			// 마지막 남은 데이터 처리
+			if (!batch.isEmpty())
+				flightMapper.insertFlights(batch);
 		}
-		flightMapper.insertFlights(flights);
-		log.info("✅ flights_data_updated.csv {}건 삽입 완료", flights.size());
+		log.info("✅ flights_data_updated.csv {}건 삽입 완료", batch.size());
 	}
 }
