@@ -1,5 +1,7 @@
 package com.travelers.gotravelserver.domain.reservation.domain;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.SQLDelete;
 
 import com.travelers.gotravelserver.domain.product.domain.Product;
@@ -46,6 +48,9 @@ public class Reservation extends BaseTimeEntity {
 
 	@Column(nullable = false)
 	private int participants; // 예약 인원 수
+
+	@Column(nullable = false, precision = 10, scale = 2)
+	private BigDecimal price; // 예약한 총 가격
 
 	@Builder.Default
 	@Enumerated(EnumType.STRING)

@@ -66,6 +66,7 @@ CREATE TABLE reservations
     user_id      BIGINT      NOT NULL,
     product_id   BIGINT      NOT NULL,
     participants INT         NOT NULL,
+    price        DECIMAL     NOT NULL,
     status       VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     deleted      TINYINT(1)  NOT NULL DEFAULT 0,
     created_at   DATETIME    NOT NULL,
