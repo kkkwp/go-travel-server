@@ -1,4 +1,4 @@
-package com.travelers.gotravelserver.global.component;
+package com.travelers.gotravelserver.global.config;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
