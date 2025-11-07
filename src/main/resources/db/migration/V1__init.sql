@@ -21,6 +21,7 @@ CREATE TABLE flights
     location_id   BIGINT         NOT NULL,
     flight_number VARCHAR(255)   NOT NULL,
     airline       VARCHAR(255)   NOT NULL,
+    dept_date     DATE           NOT NULL,
     dept_time     DATETIME       NOT NULL,
     arrival_time  DATETIME       NOT NULL,
     price         DECIMAL(10, 2) NOT NULL,
