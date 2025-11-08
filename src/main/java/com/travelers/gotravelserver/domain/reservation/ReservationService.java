@@ -32,7 +32,7 @@ public class ReservationService {
 	private final ProductService productService;
 
 	// 예약 생성
-	@Transactional(readOnly = true)
+	@Transactional
 	public ReservationResponse createReservation(Long productId, User user, int participants, LocalDate departureDate) {
 		// 상품 상태 검증
 		Product product = productService.getProductById(productId);
@@ -47,7 +47,7 @@ public class ReservationService {
 		// 가격 계산
 		Flight deptFlight = flightService.getCheapestFlight(product.getLocation(), departureDate);
 		Flight returnFlight = flightService.getCheapestFlight(
-			product.getLocation(), departureDate.plusDays(product.getDays() + 1));
+			product.getLocation(), departureDate.plusDays(product.getDays()));
 
 		BigDecimal totalPrice = product.getPrice()
 			.add(deptFlight.getPrice())

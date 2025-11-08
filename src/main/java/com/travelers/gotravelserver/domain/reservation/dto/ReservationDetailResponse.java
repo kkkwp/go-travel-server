@@ -29,7 +29,7 @@ public class ReservationDetailResponse {
 	public static ReservationDetailResponse from(Reservation reservation) {
 		StringBuilder sb = new StringBuilder();
 		int days = reservation.getProduct().getDays();
-		sb.append(days).append("박 ").append(days + 2).append("일");
+		sb.append(days).append("박 ").append(days + 1).append("일");
 
 		return ReservationDetailResponse.builder()
 			.id(reservation.getId())

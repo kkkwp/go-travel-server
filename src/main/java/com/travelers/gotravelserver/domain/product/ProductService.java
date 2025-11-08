@@ -23,10 +23,9 @@ public class ProductService {
 	private final ProductMapper productMapper;
 	private final ProductRepository productRepository;
 
-	public ProductResponse getProductById(Long id) {
-		Product product = productRepository.findById(id)
+	public Product getProductById(Long id) {
+		return productRepository.findById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
-		return ProductResponse.from(product);
 	}
 
 	public List<ProductResponse> getProducts(
