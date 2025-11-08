@@ -1,10 +1,11 @@
-package com.travelers.gotravelserver.global.component;
+package com.travelers.gotravelserver.global.config;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +36,10 @@ public class CSVImporter implements CommandLineRunner {
 			return;
 		}
 
-		List<FlightCsvDto> flights = new ArrayList<>();
+		final int BATCH_SIZE = 1000;
+		List<FlightCsvDto> batch = new ArrayList<>(BATCH_SIZE);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 		try (var reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(
 			getClass().getClassLoader().getResourceAsStream("db/import/flights_data_updated.csv")),
 			StandardCharsets.UTF_8))) {
@@ -44,20 +48,33 @@ public class CSVImporter implements CommandLineRunner {
 			reader.lines().skip(1).forEach(line -> {
 				try {
 					String[] p = line.split(",", -1);
-					flights.add(FlightCsvDto.builder()
+					LocalDateTime deptTime = LocalDateTime.parse(p[2].trim(), formatter);
+					LocalDateTime arrivalTime = LocalDateTime.parse(p[3].trim(), formatter);
+					batch.add(FlightCsvDto.builder()
 						.flightNumber(p[0].trim())
 						.airline(p[1].trim())
-						.deptTime(Timestamp.valueOf(p[2].trim()))
-						.arrivalTime(Timestamp.valueOf(p[3].trim()))
+						.deptDate(deptTime.toLocalDate())
+						.deptTime(deptTime)
+						.arrivalTime(arrivalTime)
 						.price(new BigDecimal(p[4].trim()))
 						.destination(p[5].trim())
 						.build());
+
+					// 일정 크기 도달 시 flush
+					if (batch.size() >= BATCH_SIZE) {
+						flightMapper.insertFlights(batch);
+						log.info("✅ {}건 삽입 완료 (누적)", BATCH_SIZE);
+						batch.clear();
+					}
 				} catch (Exception e) {
 					log.error("CSV 파싱 오류: {} → {}", line, e.getMessage());
 				}
 			});
+
+			// 마지막 남은 데이터 처리
+			if (!batch.isEmpty())
+				flightMapper.insertFlights(batch);
 		}
-		flightMapper.insertFlights(flights);
-		log.info("✅ flights_data_updated.csv {}건 삽입 완료", flights.size());
+		log.info("✅ flights_data_updated.csv {}건 삽입 완료", batch.size());
 	}
 }
