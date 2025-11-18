@@ -37,13 +37,17 @@ public class UserService {
 	}
 
 	// 로그인
-	public User login(UserLoginRequest req) {
-		User user = userRepository.findByEmail(req.getEmail())
-			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-		if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
-			throw new CustomException(ErrorCode.INVALID_PASSWORD);
-		return user;
-	}
+    public User login(UserLoginRequest req) {
+        User user = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+
+        if(!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            throw new RuntimeException("비밀번호 틀림");
+        }
+
+        return user; // DB 변경 없이 반환
+    }
+
 
 	// 회원정보 수정 - phone 또는 password
 	@Transactional
