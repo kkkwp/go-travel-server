@@ -1,6 +1,8 @@
 package com.travelers.gotravelserver.global.config;
 
 import com.travelers.gotravelserver.global.security.CustomUserDetailsService;
+import com.travelers.gotravelserver.global.security.JwtAuthenticationFilter;
+import com.travelers.gotravelserver.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +13,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    }
 
     // 비밀번호 암호화용 Bean (BCrypt 알고리즘 사용)
 	@Bean
@@ -38,7 +47,8 @@ public class SecurityConfig {
 		    .authorizeHttpRequests(auth -> auth
 			    .requestMatchers("/auth/**").permitAll() // 회원가입/로그인은 허용
                 .anyRequest().authenticated() // 그 외는 인증 필요
-		);
+		)
+          .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 }
