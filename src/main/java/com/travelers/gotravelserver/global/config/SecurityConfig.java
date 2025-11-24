@@ -52,7 +52,7 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable) // 기본 인증 비활성화
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/api/reservations").authenticated() // 예약하려면 인증 필요
-				.requestMatchers("/api/me/**").authenticated() // 마이페이지 가려면 인증 필요
+				.requestMatchers("/api/me/**", "/api/users/me/**").authenticated() // 마이페이지 가려면 인증 필요
 				.anyRequest().permitAll() // 나머지는 전부 허용
 			)
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
